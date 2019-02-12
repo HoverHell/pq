@@ -54,6 +54,21 @@ def prepared(f):
 
     @wraps(f)
     def wrapper(self, cursor, *args):
+
+        if not self.use_sql_prepare:
+            argmap = list(
+                int(num) - 1
+                for num in re.findall('\$([0-9]+)', query))
+
+            conn = cursor.connection
+
+            d = self.__dict__.copy()
+
+            d.update({'%s' % (idx + 1,): args[idx] for idx in argmap})
+            statement = re.sub(r'\$([0-9]+)', r'%(\1)s', query)
+            cursor.execute(statement, d)
+            return f(self, cursor, *args[arg_count:])
+
         conn = cursor.connection
         name = fname % self.__dict__
         key = "_prepared_%s" % name

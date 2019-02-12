@@ -99,6 +99,7 @@ class Queue(object):
     # returns ``None``.
     timeout = 1
     last_timeout = None
+    use_sql_prepare = True
 
     # Keyword arguments passed when creating a new cursor.
     cursor_kwargs = {}
